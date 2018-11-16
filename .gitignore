@@ -1,0 +1,5 @@
+# IntelliJ IDEA
+.idea/**/dictionaries/
+.idea/**/tasks.xml
+.idea/**/webServers.xml
+.idea/**/workspace.xml
