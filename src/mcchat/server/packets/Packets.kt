@@ -1,66 +1,37 @@
+@file:Suppress("unused")
+
 package mcchat.server.packets
 
-import mcchat.server.helpers.getFrom
-import mcchat.server.helpers.nullTerminate
-import mcchat.server.helpers.write
-import java.io.ByteArrayOutputStream
+open class OpCoded(val opcode: Byte)
 
-sealed class Packet {
-    abstract val opcode: Byte
-
-    fun bytes(): ByteArray {
-        val out = ByteArrayOutputStream()
-
-        for (field in this.javaClass.declaredFields)
-            when (field.type) {
-                Byte::class.java -> out.write(field.getFrom(this) as Byte)
-
-                String::class.java -> out.write(
-                    nullTerminate((field.getFrom(this) as String).toByteArray())
-                )
-
-                Array<String>::class.java -> out.write(
-                    nullTerminate(
-                        (field.getFrom(this) as Array<String>)
-                            .map { it.toByteArray() }
-                            .map(::nullTerminate)
-                            .reduce(ByteArray::plus)
-                    )
-                )
-            }
-
-        return out.toByteArray()
-    }
-}
+sealed class Packet
 
 class InfoPacket(internal val version: Byte) : Packet() {
-    override val opcode = (0).toByte()
+    companion object : OpCoded(0)
 }
 
 class TopicListRequestPacket : Packet() {
-    override val opcode = (4).toByte()
+    companion object : OpCoded(4)
 }
 
 class TopicListPacket(internal val topics: Array<String>) : Packet() {
-    override val opcode = (5).toByte()
+    companion object : OpCoded(5)
 }
 
-sealed class TopicPacket : Packet() {
-    abstract val topic: String
+sealed class TopicPacket(val topic: String) : Packet()
+
+class SubscriptionPacket(topic: String) : TopicPacket(topic) {
+    companion object : OpCoded(1)
 }
 
-class SubscriptionPacket(override val topic: String) : TopicPacket() {
-    override val opcode = (1).toByte()
-}
-
-class UnsubscriptionPacket(override val topic: String) : TopicPacket() {
-    override val opcode = (2).toByte()
+class UnsubscriptionPacket(topic: String) : TopicPacket(topic) {
+    companion object : OpCoded(2)
 }
 
 class MessagePacket(
-    override val topic: String,
+    topic: String,
     internal val username: String,
     internal val message: String
-) : TopicPacket() {
-    override val opcode = (3).toByte()
+) : TopicPacket(topic) {
+    companion object : OpCoded(3)
 }

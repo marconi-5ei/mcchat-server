@@ -1,8 +1,8 @@
 package mcchat.server.helpers
 
-import java.lang.reflect.Field
-import kotlin.reflect.jvm.kotlinProperty
+import kotlin.reflect.KProperty1
 
-fun <T> Field.getFrom(obj: Any): T {
-    return this.kotlinProperty?.getter?.call(obj) as T
+@Suppress("UNCHECKED_CAST")
+fun <T> KProperty1<out Any, Any?>.getFrom(obj: Any): T {
+    return this.getter.call(obj) as T
 }
