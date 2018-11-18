@@ -6,15 +6,13 @@ import java.net.Socket;
 
 public class ConnectionWatchdog {
     public ConnectionWatchdog() {
-        try (ServerSocket watchdog = new ServerSocket(1502)) {
+        try (ServerSocket watchdog = new ServerSocket(23791)) {
             while (true) {
                 try (Socket socket = watchdog.accept()) {
-                    new ConnectionHandler(socket).start();
-                } catch (IOException ignored) {
-                }
+                    System.out.println("Connection arrived!");
+                    new Thread(new ConnectionHandler(socket)).start();
+                } catch (IOException ignored) {}
             }
         } catch (final IOException ignored) {}
     }
-
 }
-

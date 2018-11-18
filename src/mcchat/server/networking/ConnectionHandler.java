@@ -1,12 +1,12 @@
 package mcchat.server.networking;
 
-import mcchat.server.packets.InfoPacket;
 import mcchat.server.packets.SerializationKt;
+import mcchat.server.packets.InfoPacket;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class ConnectionHandler extends Thread {
+public class ConnectionHandler implements Runnable {
 
     private Socket connection;
 
