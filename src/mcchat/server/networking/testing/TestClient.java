@@ -15,7 +15,7 @@ public class TestClient {
     private BufferedReader is;
 
     TestClient(){
-        try(Socket s = new Socket("localhost", 23791)){
+        try(Socket s = new Socket("localhost", 1502)){
             this.os = new DataOutputStream(s.getOutputStream());
             this.is = new BufferedReader(new InputStreamReader(s.getInputStream()));
             System.out.println(is.read()); //Server output
