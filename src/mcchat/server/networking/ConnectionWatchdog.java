@@ -6,7 +6,7 @@ import java.net.Socket;
 
 public class ConnectionWatchdog {
     public ConnectionWatchdog() {
-        try (ServerSocket watchdog = new ServerSocket(23791)) {
+        try (ServerSocket watchdog = new ServerSocket(1502)) {
             while (true) {
                 try (Socket socket = watchdog.accept()) {
                     System.out.println("Connection arrived!");
