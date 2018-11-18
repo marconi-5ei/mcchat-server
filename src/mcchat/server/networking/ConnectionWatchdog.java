@@ -16,8 +16,5 @@ public class ConnectionWatchdog {
         } catch (final IOException ignored) {}
     }
 
-    public static void main(String[] args) {
-        new ConnectionWatchdog();
-    }
 }
 
