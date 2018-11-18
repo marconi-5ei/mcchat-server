@@ -1,30 +1,25 @@
 package mcchat.server.networking;
 
 import mcchat.server.packets.InfoPacket;
-
+import mcchat.server.packets.SerializationKt;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.net.Socket;
 
 public class ConnectionHandler extends Thread {
 
-    ServerSocket watchdog;
-    DataOutputStream outputStream;
+    Socket connection;
 
-    public ConnectionHandler(ServerSocket connWatchdog) {
-        this.watchdog = connWatchdog;
+    public ConnectionHandler(Socket connection) {
+        this.connection = connection;
     }
 
     @Override
     public void run() {
-        while(true) {
-            try (Socket socket = this.watchdog.accept()) {
-                InfoPacket packet = new InfoPacket((byte) 0);
-                this.outputStream.write(mcchat.server.packets.SerializationKt.serialize(packet));
-                this.outputStream.flush();
-            } catch (IOException ignored) {}
-        }
+        try(DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream())){
+            outputStream.write(SerializationKt.serialize(new InfoPacket((byte) 0)));
+            outputStream.flush();
+        } catch (IOException ignored) {}
     }
 }
 
