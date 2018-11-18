@@ -8,7 +8,7 @@ import java.net.Socket;
 
 public class ConnectionHandler extends Thread {
 
-    Socket connection;
+    private Socket connection;
 
     public ConnectionHandler(Socket connection) {
         this.connection = connection;

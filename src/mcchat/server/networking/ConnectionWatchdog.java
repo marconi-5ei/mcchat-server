@@ -13,8 +13,7 @@ public class ConnectionWatchdog {
                 } catch (IOException ignored) {
                 }
             }
-        } catch (final IOException ignored) {
-        }
+        } catch (final IOException ignored) {}
     }
 
     public static void main(String[] args) {
