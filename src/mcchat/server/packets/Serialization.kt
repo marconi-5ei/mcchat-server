@@ -18,14 +18,14 @@ private fun discoverClasses(clazz: KClass<out Packet> = Packet::class): List<KCl
     return clazz.sealedSubclasses.let { it + it.flatMap(::discoverClasses) }
 }
 
-class Parser(private val input: InputStream) : Iterator<Packet> {
+class Parser(private val input: InputStream) : Iterator<Packet?> {
     override fun hasNext(): Boolean {
         return input.available() > 1
     }
 
-    override fun next(): Packet {
+    override fun next(): Packet? {
         @Suppress("UNCHECKED_CAST")
-        val packetClass = packetsByOpCode[input.read().toByte()]!!
+        val packetClass = packetsByOpCode[input.read().toByte()] ?: return null
 
         val packetFields = mutableListOf<Any>()
 
@@ -67,7 +67,7 @@ fun serialize(packet: Packet): ByteArray {
 
     out.write((packet::class.companionObjectInstance as OpCoded).opcode)
 
-    for (property in packet::class.memberProperties)
+    for (property in packet::class.memberProperties.reversed())
         when (property.javaField!!.type) {
             Byte::class.java -> out.write(property.getFrom(packet) as Byte)
 
