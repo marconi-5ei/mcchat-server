@@ -3,10 +3,10 @@ package mcchat.server.helpers
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
-fun nullTerminate(bytes: ByteArray): ByteArray {
+fun terminate(bytes: ByteArray, terminator: Byte = 0): ByteArray {
     return ByteArrayOutputStream().apply {
         write(bytes)
-        write(byteArrayOf(0))
+        write(terminator)
     }.toByteArray()
 }
 
