@@ -14,7 +14,13 @@ class TopicListRequestPacket : Packet() {
     companion object : OpCoded(4)
 }
 
-class TopicListPacket(internal val topics: Array<String>) : Packet() {
+sealed class ListPacket : Packet() {
+    companion object {
+        const val TERMINATOR: Byte = 4
+    }
+}
+
+class TopicListPacket(internal val topics: Array<String>) : ListPacket() {
     companion object : OpCoded(5)
 }
 
