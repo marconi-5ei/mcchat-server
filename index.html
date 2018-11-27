@@ -123,7 +123,7 @@ Acknowledgements
    that packet.
 
 
-                            1 byte   1 byte
+                           1 byte    1 byte
                           --------------------
                          | Opcode |  Version  |
                           --------------------
@@ -193,26 +193,26 @@ MCCHAT Formats
 
    Type   Op #      Format without header
 
-          1 byte
+          1 byte   1 byte
           -----------------
    INFO  |   0   | Version |
           -----------------
-          1 byte   string  1 byte
+          1 byte  string   1 byte
           ------------------------
    SUB/  |  1/2  | Topic  |   0   |
    UNSUB  ------------------------
-          1 byte   string   1 byte   string    1 byte  string    1 byte
-         --------------------------------------------------------------
-   MSG  | Opcode | Topic  |   0   | Username |   0   | Message |   0   |
-         --------------------------------------------------------------
+          1 byte  string   1 byte   string   1 byte   string   1 byte
+          ------------------------------------------------------------
+   MSG   |   3   | Topic |   0   | Username |   0   | Message |   0   |
+          ------------------------------------------------------------
           1 byte
           -------
    TLRQ  |   4   |
           -------
-          1 byte    string   1 byte        string  1 byte   1 byte
-          ---------------------------  /  ------------------------
-   TL    | Opcode | Topic  |   0   |   \   Topic  |   0   |   4   |
-          ---------------------------  /  ------------------------
+          1 byte  string   1 byte         string  1 byte  1 byte
+          --------------------------  /  ------------------------
+   TL    |   5   | Topic  |   0   |   \   Topic  |   0   |   4   |
+          --------------------------  /  ------------------------
 
 Connection details
 
