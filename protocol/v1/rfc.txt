@@ -1,0 +1,238 @@
+Network Working Group                                          E. Forigo
+                                                       ITI G. Marconi VR
+                                                           November 2018
+
+                    THE MCCHAT PROTOCOL (VERSION 1)
+
+Status of this Memo
+
+    This document specifies the MCCHAT protocol, and requests
+    discussion and suggestions for improvements.
+    Distribution of this memo is unlimited.
+
+Summary
+
+    MCCHAT is a protocol to transfer text messages.
+    This document describes the protocol and its types of packets.
+    The document also explains the reasons behind the design decision
+    process.
+
+Acknowledgements
+
+   The protocol was originally designed by the students of the 5EI
+   section, and formalized by Devis Zanoni, Tobia Valerio and
+   Ettore Forigo, with the help of Antonio Sette. The current revision
+   of the document includes an initial design proposal with basic
+   features and space for future extensions. The protocol was inspired
+   by TFTP in the design of the packets' structure and by MQTT in
+   the topics concept.
+
+1. Purpose
+
+   MCCHAT is a protocol to exchange messages in groups, referred by the
+   protocol as topics. The term topic will therefore be used throughout
+   the document to mean a group of clients that receive messages sent
+   to the topic itself.
+
+2. Connection details
+
+   MCCHAT standard implementation uses the
+   Internet Transport Control Protocol (TCP), but MCCHAT can be
+   implemented in any protocol that is connection oriented and stream
+   based. In this document, every reference to "the transfer layer"
+   refers to the chosen protocol of implementation.
+
+   Clients must open a connection to the server using the transfer
+   layer. In default TCP implementation clients must open a socket to
+   the server's IP address, port 1502.
+
+3. Relation to other Protocols
+
+   MCCHAT will interact with the transfer layer in 3 ways. It will
+   establish a connection through it, it will use it to send packets
+   back and forth between the client and server on the two streams made
+   available by the transfer layer and it will be signaled the
+   termination of the connection by it.
+
+   The transfer layer must also provide each endpoint of connection
+   with a unique identifier accessible from the MCCHAT protocol.
+
+4. Normal operation
+
+   Since this protocol is implemented on top of the transfer layer,
+   there will be a phase of establishing the connection.
+   After the connection is established clients will receive an
+   information packet with the version of the protocol used by the
+   server.
+
+   A client is identified by the server using an identifier that is
+   unique to each client and is provided by the transfer layer. In the
+   default TCP implementation this identifier will be the source
+   IP address of the socket established with the client.
+   This is how the server manages every operation that requires the
+   knowledge of the clients identity.
+   (Subscriptions/Push notifications, etc.)
+
+   MCCHAT uses topics as communication channels.
+
+   A client may at any given time ask the server to start sending
+   messages from a certain topic with a Subscribe packet, and ask the
+   server to stop sending a certain topic's messages with an Unsubscribe
+   packet.
+
+   On startup clients can connect by default to the topic "" (empty
+   string). This is a reserved topic used to discover other topics.
+
+   A client may also at any given time send a message to a certain topic
+   with a Message packet, specifying the topic, the username to be
+   displayed by other client for that message and the message content.
+   The client can send messages to a topic even if it not subscribed
+   itself to the topic. The message will be received only by the
+   subscribers. If a client is subscribed to the topic the message is
+   sent to tho, it will get a copy of its own message from the server.
+
+   When a message is sent to a topic, all subscribed clients will
+   receive the Message packet as sent by the original sender.
+
+   The client may also obtain a list of active topics using the
+   Topic List Request packet. The server will respond with a Topic List
+   packet, containing a null terminated list of topics. A topic is
+   considered active if it has at least one client subscribed to it.
+
+   Upon connection termination, the server will automatically
+   unsubscribe a client from all topics.
+
+   Every string sent with the protocol is encoded with UTF-8 and
+   ends when a 0x0 byte is encountered (null-terminated).
+
+5. MCCHAT Packets
+
+   MCCHAT supports six types of packets, all of which have been
+   mentioned above:
+
+          opcode  operation
+            0     Information (INFO)
+            1     Subscription (SUB)
+            2     Unsubscription (UNSUB)
+            3     Message (MSG)
+            4     Topic List Request (TLRQ)
+            5     Topic List (TL)
+
+   The MCCHAT header of a packet contains the opcode associated with
+   that packet.
+
+
+                           1 byte    1 byte
+                          --------------------
+                         | Opcode |  Version  |
+                          --------------------
+
+                        Figure 5-1: INFO packet
+
+
+   The INFO packet (opcode 0) has the format shown in Figure 5-1. The
+   version field contains the version of the protocol used by the
+   server.
+
+
+                        1 byte   string  1 byte
+                       -------------------------
+                      | Opcode | Topic  |   0   |
+                       -------------------------
+
+                      Figure 5-2: SUB/UNSUB packet
+
+
+   SUB/UNSUB packets (opcodes 1 and 2 respectively) have the format
+   shown in Figure 5-2. The topic field contains a UTF-8 encoded string
+   that uniquely identifies a topic.
+
+
+          1 byte   string   1 byte   string    1 byte   string   1 byte
+         --------------------------------------------------------------
+        | Opcode | Topic  |   0   | Username |   0   | Message |   0   |
+         --------------------------------------------------------------
+
+                          Figure 5-3: MSG packet
+
+
+   Messages are actually transmitted in MSG packets depicted in Figure
+   5-3. MSG packets (opcode 3) contain the topic the message needs
+   to be delivered to, a username to display as the sender of the
+   message and the message data itself.
+
+
+                                 1 byte
+                                --------
+                               | Opcode |
+                                --------
+
+                        Figure 5-4: TLRQ packet
+
+
+   The TLRQ packet (opcode 4) has the format shown in Figure 5-4.
+
+
+             1 byte   string   1 byte        string  1 byte   1 byte
+            ---------------------------  /  ------------------------
+           | Opcode | Topic  |   0   |   \   Topic  |   0   |   4   |
+            ---------------------------  /  ------------------------
+
+                         Figure 5-5: TL packet
+
+
+   The TL packet (opcode 5) is the most complex one. It contains a
+   sequence of strings, all null terminated, representing each the name
+   of a topic. There could be 0 to n topics in the TL packet. The
+   sequence ends when a 0x4 byte (end of transmission) is encountered.
+
+I. Appendix
+
+MCCHAT Formats
+
+   Type   Op #      Format without header
+
+          1 byte   1 byte
+          -----------------
+   INFO  |   0   | Version |
+          -----------------
+          1 byte  string   1 byte
+          ------------------------
+   SUB/  |  1/2  | Topic  |   0   |
+   UNSUB  ------------------------
+          1 byte  string   1 byte   string   1 byte   string   1 byte
+          ------------------------------------------------------------
+   MSG   |   3   | Topic |   0   | Username |   0   | Message |   0   |
+          ------------------------------------------------------------
+          1 byte
+          -------
+   TLRQ  |   4   |
+          -------
+          1 byte  string   1 byte         string  1 byte  1 byte
+          --------------------------  /  ------------------------
+   TL    |   5   | Topic  |   0   |   \   Topic  |   0   |   4   |
+          --------------------------  /  ------------------------
+
+Connection details
+
+   Clients must open a socket to the server's IP address, port 1502.
+
+Security Considerations
+
+   Since MCCHAT includes no login or access control mechanisms, care
+   must be taken when sending data with it and no important or secret
+   data should be sent with it. Data sent with the MCCHAT protocol is
+   in clear over the network and can be sniffed and/or tampered with by
+   malicious third parties. User's discretion is advised.
+
+Author's Address
+
+   Ettore Forigo
+   ITI G. Marconi Verona
+   5EI
+   Piazzale Romano Guardini 1
+   Verona, 37138
+
+   Phone: (+39) 346 7943 950
+
+   EMail: ettore.forigo@gmail.com
