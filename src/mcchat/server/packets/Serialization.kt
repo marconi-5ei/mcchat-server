@@ -6,6 +6,7 @@ import mcchat.server.helpers.getFrom
 import mcchat.server.helpers.readString
 import mcchat.server.helpers.terminate
 import mcchat.server.helpers.write
+import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import kotlin.reflect.KClass
@@ -18,7 +19,9 @@ private fun discoverClasses(clazz: KClass<out Packet> = Packet::class): List<KCl
     return clazz.sealedSubclasses.let { it + it.flatMap(::discoverClasses) }
 }
 
-class Parser(private val input: InputStream) : Iterator<Packet?> {
+class Parser(input: InputStream) : Iterator<Packet?> {
+    private val input = BufferedInputStream(input)
+
     override fun hasNext(): Boolean {
         return input.available() > 1
     }
@@ -58,8 +61,8 @@ class Parser(private val input: InputStream) : Iterator<Packet?> {
 
     companion object {
         private val packetsByOpCode = discoverClasses()
-            .filter { !it.isSealed }
-            .associateBy { (it.companionObjectInstance as OpCoded).opcode }
+                .filter { !it.isSealed }
+                .associateBy { (it.companionObjectInstance as OpCoded).opcode }
     }
 }
 
@@ -74,17 +77,17 @@ fun serialize(packet: Packet): ByteArray {
             Byte::class.java -> out.write(property.getFrom(packet) as Byte)
 
             String::class.java -> out.write(
-                terminate((property.getFrom(packet) as String).toByteArray())
+                    terminate((property.getFrom(packet) as String).toByteArray())
             )
 
             Array<String>::class.java -> out.write(
-                terminate(
-                    (property.getFrom(packet) as Array<String>)
-                        .map { it.toByteArray() }
-                        .map { terminate(it) }
-                        .fold(byteArrayOf(), ByteArray::plus),
-                    ListPacket.TERMINATOR
-                )
+                    terminate(
+                            (property.getFrom(packet) as Array<String>)
+                                    .map { it.toByteArray() }
+                                    .map { terminate(it) }
+                                    .fold(byteArrayOf(), ByteArray::plus),
+                            ListPacket.TERMINATOR
+                    )
             )
         }
 
