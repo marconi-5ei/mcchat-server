@@ -1,14 +1,14 @@
 package mcchat.server.testing
 
-import mcchat.server.packets.serialize
 import mcchat.server.packets.InfoPacket
-import org.junit.jupiter.api.Assertions.*
+import mcchat.server.packets.serialize
+import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Test
 
 
 internal class SerializationTest {
     @Test
-    fun InfoPacketSerializationMatchingTest() {
+    fun infoPacketSerializationMatchingTest() {
         val serializedPacket: ByteArray = serialize(InfoPacket(0.toByte()))
         val manuallySerializedPacket = ByteArray(2)
         //Serialize Packet manually
