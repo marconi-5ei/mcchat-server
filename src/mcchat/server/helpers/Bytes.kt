@@ -1,30 +1,26 @@
 package mcchat.server.helpers
 
 import java.io.ByteArrayOutputStream
-import java.io.InputStream
 
-fun terminate(bytes: ByteArray, terminator: Byte = 0): ByteArray {
-    return ByteArrayOutputStream().apply {
-        write(bytes)
-        write(terminator)
+fun ByteArray.terminateWith(terminator: Byte): ByteArray {
+    return ByteArrayOutputStream().also {
+        it.write(this)
+        it.write(terminator)
     }.toByteArray()
+}
+
+fun ByteArray.nullTerminate(): ByteArray {
+    return this.terminateWith(0)
+}
+
+fun Iterable<ByteArray>.flatten(): ByteArray {
+    return this
+        .map { it.toTypedArray() }
+        .toTypedArray()
+        .flatten()
+        .toByteArray()
 }
 
 fun ByteArrayOutputStream.write(byte: Byte) {
     this.write(byte.toInt())
-}
-
-fun InputStream.readString(): String {
-    val buffer = ByteArrayOutputStream()
-
-    while (true) {
-        val current = this.read()
-
-        if (current == 0)
-            break
-
-        buffer.write(current)
-    }
-
-    return String(buffer.toByteArray())
 }
