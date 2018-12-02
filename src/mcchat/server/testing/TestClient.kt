@@ -4,6 +4,8 @@ package mcchat.server.testing
 //RUN THIS IN A SEPARATE THREAD / IDE INSTANCE!!! DO IT FOR YOUR SAKE!
 
 import mcchat.server.packets.*
+import mcchat.server.packets.serialization.Parser
+import mcchat.server.packets.serialization.serialize
 import java.io.IOException
 import java.net.Socket
 
