@@ -1,7 +1,7 @@
 package mcchat.server.packets.serialization
 
 import mcchat.server.helpers.write
-import mcchat.server.packets.ListPacket
+import mcchat.server.packets.TopicListPacket
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -35,13 +35,13 @@ fun InputStream.readString(): String {
     return String(this.readUntil(0))
 }
 
-inline fun <reified T> InputStream.readArray(elementDeserializer: (InputStream).() -> T): Array<T> {
-    val serializedList = ByteArrayInputStream(this.readUntil(ListPacket.TERMINATOR))
+fun InputStream.readStringArray(): Array<out String> {
+    val serializedList = ByteArrayInputStream(this.readUntil(TopicListPacket.TERMINATOR))
 
-    val out = mutableListOf<T>()
+    val out = mutableListOf<String>()
 
     while (serializedList.available() != 0)
-        out.add(serializedList.elementDeserializer())
+        out.add(serializedList.readString())
 
     return out.toTypedArray()
 }
