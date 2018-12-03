@@ -2,44 +2,36 @@
 
 package mcchat.server.packets
 
+import mcchat.server.helpers.OpCode
 import mcchat.server.helpers.Position
-
-open class OpCoded(val opcode: Byte)
 
 sealed class Packet
 
-class InfoPacket(@Position(0) internal val version: Byte) : Packet() {
-    companion object : OpCoded(0)
-}
-
-class TopicListRequestPacket : Packet() {
-    companion object : OpCoded(4)
-}
-
-sealed class ListPacket : Packet() {
-    companion object {
-        const val TERMINATOR: Byte = 4
-    }
-}
-
-class TopicListPacket(@Position(0) internal val topics: Array<String>) : ListPacket() {
-    companion object : OpCoded(5)
-}
+@OpCode(0)
+class InfoPacket(@Position(0) internal val version: Byte) : Packet()
 
 sealed class TopicPacket(@Position(0) val topic: String) : Packet()
 
-class SubscriptionPacket(topic: String) : TopicPacket(topic) {
-    companion object : OpCoded(1)
-}
+@OpCode(1)
+class SubscriptionPacket(topic: String) : TopicPacket(topic)
 
-class UnsubscriptionPacket(topic: String) : TopicPacket(topic) {
-    companion object : OpCoded(2)
-}
+@OpCode(2)
+class UnsubscriptionPacket(topic: String) : TopicPacket(topic)
 
+@OpCode(3)
 class MessagePacket(
     topic: String,
     @Position(1) internal val username: String,
     @Position(2) internal val message: String
-) : TopicPacket(topic) {
-    companion object : OpCoded(3)
+) : TopicPacket(topic)
+
+@Suppress("CanSealedSubClassBeObject")
+@OpCode(4)
+class TopicListRequestPacket : Packet()
+
+@OpCode(5)
+class TopicListPacket(@Position(0) internal val topics: Array<out String>) : Packet() {
+    companion object {
+        const val TERMINATOR: Byte = 4
+    }
 }
