@@ -3,7 +3,10 @@ package mcchat.server
 import mcchat.server.packets.*
 import mcchat.server.packets.serialization.Parser
 import mcchat.server.packets.serialization.serialize
+import java.io.IOException
 import java.net.Socket
+
+// TODO Add logging
 
 class ConnectionHandler(private val connection: Socket) : Runnable {
     private val inputStream = connection.getInputStream()
@@ -22,26 +25,26 @@ class ConnectionHandler(private val connection: Socket) : Runnable {
         outputStream.write(serialize(InfoPacket(0)))
 
         while (connection.isConnected) {
-            try {
-                val incoming = parser.next()
+            val incoming = try {
+                parser.next()
+            } catch (e: IOException) {
+                break
+            }
 
-                when (incoming) {
-                    is TopicListRequestPacket ->
-                        outputStream.write(serialize(TopicListPacket(subscriptions.keys.toTypedArray())))
+            when (incoming) {
+                is TopicListRequestPacket ->
+                    outputStream.write(serialize(TopicListPacket(subscriptions.keys.toTypedArray())))
 
-                    is SubscriptionPacket ->
-                        subscriptions.subscribe(this, incoming.topic)
+                is SubscriptionPacket ->
+                    subscriptions.subscribe(this, incoming.topic)
 
-                    is UnsubscriptionPacket ->
-                        subscriptions.unsubscribe(this, incoming.topic)
+                is UnsubscriptionPacket ->
+                    subscriptions.unsubscribe(this, incoming.topic)
 
-                    is MessagePacket ->
-                        subscriptions[incoming.topic]?.forEach {
-                            it.outputStream.write(serialize(incoming))
-                        }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+                is MessagePacket ->
+                    subscriptions[incoming.topic]?.forEach {
+                        it.outputStream.write(serialize(incoming))
+                    }
             }
         }
 

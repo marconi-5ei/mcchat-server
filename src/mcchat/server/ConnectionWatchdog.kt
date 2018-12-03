@@ -1,6 +1,5 @@
 package mcchat.server
 
-import java.io.IOException
 import java.net.ServerSocket
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.concurrent.thread
@@ -27,18 +26,9 @@ fun MutableMap<String, MutableSet<ConnectionHandler>>.unsubscribe(client: Connec
 }
 
 fun main(args: Array<String>) {
-    try {
-        ServerSocket(1502).use { watchdog ->
-            while (true) {
-                try {
-                    thread(isDaemon = true, block = ConnectionHandler(watchdog.accept())::run)
-                } catch (ignored: IOException) {
-
-                }
-
-            }
+    ServerSocket(1502).use { watchdog ->
+        while (true) {
+            thread(isDaemon = true, block = ConnectionHandler(watchdog.accept())::run)
         }
-    } catch (e: IOException) {
-        e.printStackTrace()
     }
 }
