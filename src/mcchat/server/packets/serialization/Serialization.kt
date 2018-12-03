@@ -22,7 +22,7 @@ class Parser(private val input: InputStream) : Iterator<Packet?> {
         return input.available() > 0
     }
 
-    override fun next(): Packet? {
+    override fun next(): Packet {
         val opcode = input.readByte()
 
         @Suppress("UNCHECKED_CAST")
