@@ -2,11 +2,13 @@
 
 package mcchat.server.packets
 
+import mcchat.server.helpers.Position
+
 open class OpCoded(val opcode: Byte)
 
 sealed class Packet
 
-class InfoPacket(internal val version: Byte) : Packet() {
+class InfoPacket(@Position(0) internal val version: Byte) : Packet() {
     companion object : OpCoded(0)
 }
 
@@ -20,11 +22,11 @@ sealed class ListPacket : Packet() {
     }
 }
 
-class TopicListPacket(internal val topics: Array<String>) : ListPacket() {
+class TopicListPacket(@Position(0) internal val topics: Array<String>) : ListPacket() {
     companion object : OpCoded(5)
 }
 
-sealed class TopicPacket(val topic: String) : Packet()
+sealed class TopicPacket(@Position(0) val topic: String) : Packet()
 
 class SubscriptionPacket(topic: String) : TopicPacket(topic) {
     companion object : OpCoded(1)
@@ -36,8 +38,8 @@ class UnsubscriptionPacket(topic: String) : TopicPacket(topic) {
 
 class MessagePacket(
     topic: String,
-    internal val username: String,
-    internal val message: String
+    @Position(1) internal val username: String,
+    @Position(2) internal val message: String
 ) : TopicPacket(topic) {
     companion object : OpCoded(3)
 }
