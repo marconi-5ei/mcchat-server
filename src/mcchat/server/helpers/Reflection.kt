@@ -14,5 +14,5 @@ val <T : Any> T.kclass
     get() = this::class as KClass<T>
 
 fun <T : Any> KClass<out T>.deepSealedSubclasses(): List<KClass<out T>> {
-    return sealedSubclasses.let { it + it.flatMap(KClass<out T>::deepSealedSubclasses) }.filter { !it.isSealed }
+    return sealedSubclasses.let { it + it.flatMap(KClass<out T>::deepSealedSubclasses) }
 }

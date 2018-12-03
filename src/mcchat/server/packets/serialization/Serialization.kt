@@ -2,14 +2,9 @@
 
 package mcchat.server.packets.serialization
 
-import mcchat.server.helpers.Position
-import mcchat.server.helpers.deepSealedSubclasses
-import mcchat.server.helpers.flatten
-import mcchat.server.helpers.kclass
-import mcchat.server.packets.OpCoded
+import mcchat.server.helpers.*
 import mcchat.server.packets.Packet
 import java.io.InputStream
-import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
@@ -38,7 +33,7 @@ class Parser(private val input: InputStream) : Iterator<Packet?> {
 
                     String::class.java -> input.readString()
 
-                    Array<String>::class.java -> input.readArray(InputStream::readString)
+                    Array<String>::class.java -> input.readStringArray()
 
                     else -> throw IllegalArgumentException("The property \"${it.name}\" with type \"${type.simpleName}\" of class \"${packetClass.simpleName}\" has no deserializer defined")
                 }
@@ -49,8 +44,10 @@ class Parser(private val input: InputStream) : Iterator<Packet?> {
     }
 
     companion object {
-        private val packetsByOpCode = Packet::class.deepSealedSubclasses()
-            .associateBy { (it.companionObjectInstance as OpCoded).opcode }
+        private val packetsByOpCode = Packet::class
+            .deepSealedSubclasses()
+            .filter { it.findAnnotation<OpCode>() != null }
+            .associateBy { it.findAnnotation<OpCode>()!!.opcode }
     }
 }
 
@@ -65,12 +62,12 @@ fun serialize(packet: Packet): ByteArray {
 
                 String::class -> it.serializeAsStringFrom(packet)
 
-                Array<String>::class -> it.serializeAsArrayFrom(packet, ::serializeString)
+                Array<String>::class -> it.serializeAsStringArrayFrom(packet)
 
                 else -> throw IllegalArgumentException("The property \"${it.name}\" with type \"${type.simpleName}\" of class \"${packet::class.simpleName}\" has no serializer defined")
             }
         }
         .flatten()
 
-    return byteArrayOf((packet::class.companionObjectInstance as OpCoded).opcode) + payload
+    return byteArrayOf(packet::class.findAnnotation<OpCode>()!!.opcode) + payload
 }
