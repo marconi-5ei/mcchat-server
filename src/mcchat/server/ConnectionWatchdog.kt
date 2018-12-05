@@ -26,6 +26,9 @@ fun MutableMap<String, MutableSet<ConnectionHandler>>.unsubscribe(client: Connec
 }
 
 fun main(args: Array<String>) {
+
+    println("INFO: Server started. Version 0.1")
+
     ServerSocket(1502).use { watchdog ->
         while (true) {
             thread(isDaemon = true, block = ConnectionHandler(watchdog.accept())::run)
