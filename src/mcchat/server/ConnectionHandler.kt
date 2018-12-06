@@ -45,12 +45,12 @@ class ConnectionHandler(private val connection: Socket) : Runnable {
 
                 is SubscriptionPacket -> {
                     subscriptions.subscribe(this, incoming.topic)
-                    println("VERBOSE: $identifier subscribed to ${incoming.topic}")
+                    println("VERBOSE: $identifier subscribed to \"${incoming.topic}\"")
                 }
 
                 is UnsubscriptionPacket -> {
                     subscriptions.unsubscribe(this, incoming.topic)
-                    println("VERBOSE: $identifier unsubscribed from ${incoming.topic}")
+                    println("VERBOSE: $identifier unsubscribed from \"${incoming.topic}\"")
                 }
 
                 is MessagePacket ->
