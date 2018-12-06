@@ -17,8 +17,8 @@ fun main(args: Array<String>) {
 
             println("Version: ${(parser.next() as InfoPacket).version}")
 
-            out.write(serialize(SubscriptionPacket("test")))
-            out.write(serialize(TopicListRequestPacket()))
+            out.write(SubscriptionPacket("test").serialize())
+            out.write(TopicListRequestPacket().serialize())
 
             println((parser.next() as TopicListPacket).topics.contentToString())
 

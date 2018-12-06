@@ -51,23 +51,22 @@ class Parser(private val input: InputStream) : Iterator<Packet?> {
     }
 }
 
-fun serialize(packet: Packet): ByteArray {
-    val payload = packet
-        .kclass
+fun Packet.serialize(): ByteArray {
+    val payload = kclass
         .memberProperties
         .sortedBy { it.findAnnotation<Position>()!!.position }
         .map {
             when (val type = it.javaField!!.type.kotlin) {
-                Byte::class -> it.serializeAsByteFrom(packet)
+                Byte::class -> it.serializeAsByteFrom(this)
 
-                String::class -> it.serializeAsStringFrom(packet)
+                String::class -> it.serializeAsStringFrom(this)
 
-                Array<String>::class -> it.serializeAsStringArrayFrom(packet)
+                Array<String>::class -> it.serializeAsStringArrayFrom(this)
 
-                else -> throw IllegalArgumentException("The property \"${it.name}\" with type \"${type.simpleName}\" of class \"${packet::class.simpleName}\" has no serializer defined")
+                else -> throw IllegalArgumentException("The property \"${it.name}\" with type \"${type.simpleName}\" of class \"${this::class.simpleName}\" has no serializer defined")
             }
         }
         .flatten()
 
-    return byteArrayOf(packet::class.findAnnotation<OpCode>()!!.opcode) + payload
+    return byteArrayOf(this::class.findAnnotation<OpCode>()!!.opcode) + payload
 }
