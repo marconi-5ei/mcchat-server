@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 internal class SerializationTest {
     @Test
     fun infoPacketSerializationMatchingTest() {
-        val serializedPacket: ByteArray = serialize(InfoPacket(0.toByte()))
+        val serializedPacket: ByteArray = InfoPacket(0.toByte()).serialize()
         val manuallySerializedPacket = ByteArray(2)
         //Serialize Packet manually
         manuallySerializedPacket[0] = 0

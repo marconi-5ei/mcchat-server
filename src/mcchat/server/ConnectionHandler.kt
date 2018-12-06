@@ -25,7 +25,7 @@ class ConnectionHandler(private val connection: Socket) : Runnable {
 
         println("INFO: $identifier connected")
 
-        outputStream.write(serialize(InfoPacket(0)))
+        outputStream.write(InfoPacket(0).serialize())
         println("INFO: InfoPakcet sent to $identifier")
 
         while (connection.isConnected) {
@@ -39,7 +39,7 @@ class ConnectionHandler(private val connection: Socket) : Runnable {
 
             when (incoming) {
                 is TopicListRequestPacket -> {
-                    outputStream.write(serialize(TopicListPacket(subscriptions.keys.toTypedArray())))
+                    outputStream.write(TopicListPacket(subscriptions.keys.toTypedArray()).serialize())
                     println("VERBOSE: TopicListPakcet sent to $identifier")
                 }
 
@@ -55,7 +55,7 @@ class ConnectionHandler(private val connection: Socket) : Runnable {
 
                 is MessagePacket ->
                     subscriptions[incoming.topic]?.forEach {
-                        it.outputStream.write(serialize(incoming))
+                        it.outputStream.write(incoming.serialize())
                         println("VERBOSE: MessagePacket sent to ${it.identifier}")
                     }
             }
