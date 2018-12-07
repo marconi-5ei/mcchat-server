@@ -22,7 +22,7 @@ fun main(args: Array<String>) {
 
             println((parser.next() as TopicListPacket).topics.contentToString())
 
-            out.write(serialize(MessagePacket("test", "tester", "testing")))
+            out.write(MessagePacket("test", "tester", "testing").serialize())
 
             println((parser.next() as MessagePacket).run {
                 "Message from $username on topic $topic: $message"
