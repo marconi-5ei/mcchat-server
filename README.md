@@ -1,6 +1,6 @@
 # Marconi Chat Server
 
-This is the server part of th project "Marconi Chat", which has to manage client connections and communications
+This is the server part of the project "Marconi Chat", which has to manage client connections and communications.
 
 ## Requirements
 
