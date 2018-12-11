@@ -1,11 +1,6 @@
 package mcchat.server.testing
 
-//Simple client used purely subscribe testing purposes
-//RUN THIS IN A SEPARATE THREAD / IDE INSTANCE!!! DO IT FOR YOUR SAKE!
-
-import mcchat.server.packets.*
-import mcchat.server.packets.serialization.Parser
-import mcchat.server.packets.serialization.serialize
+import mcchat.packets.*
 import java.io.IOException
 import java.net.Socket
 

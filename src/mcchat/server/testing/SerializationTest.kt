@@ -1,10 +1,9 @@
 package mcchat.server.testing
 
-import mcchat.server.packets.InfoPacket
-import mcchat.server.packets.serialization.serialize
+import mcchat.packets.InfoPacket
+import mcchat.packets.serialize
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Test
-
 
 internal class SerializationTest {
     @Test
