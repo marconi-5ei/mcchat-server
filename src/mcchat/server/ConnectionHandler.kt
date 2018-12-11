@@ -1,13 +1,11 @@
 package mcchat.server
 
-import mcchat.server.packets.*
-import mcchat.server.packets.serialization.Parser
-import mcchat.server.packets.serialization.serialize
+import mcchat.packets.*
 import java.io.IOException
 import java.net.Socket
 
 class ConnectionHandler(private val connection: Socket) : Runnable {
-    private val identifier = "${connection.inetAddress.toString().replace("/", "")}: ${connection.port}"
+    private val identifier = "${connection.inetAddress.toString().replace("/", "")}:${connection.port}"
 
     private val inputStream = connection.getInputStream()
     private val outputStream = connection.getOutputStream()
