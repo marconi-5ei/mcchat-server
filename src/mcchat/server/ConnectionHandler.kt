@@ -73,11 +73,14 @@ class ConnectionHandler(private val connection: Socket) : Runnable {
         other as ConnectionHandler
 
         if (connection.inetAddress != other.connection.inetAddress) return false
+        if (connection.port != other.connection.port) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return connection.inetAddress.hashCode()
+        var result = connection.inetAddress.hashCode()
+        result = 31 * result + connection.port.hashCode()
+        return result
     }
 }
