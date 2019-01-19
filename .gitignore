@@ -1,6 +1,5 @@
 lib/
 out/
-target/
 
 # IntelliJ IDEA
 .idea/**/dictionaries/
