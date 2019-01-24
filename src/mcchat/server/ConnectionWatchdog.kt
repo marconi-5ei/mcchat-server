@@ -4,9 +4,11 @@ import java.net.ServerSocket
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.concurrent.thread
 
-internal val subscriptions: MutableMap<String, MutableSet<ConnectionHandler>> = ConcurrentHashMap()
+typealias Subscriptions = MutableMap<String, MutableSet<ConnectionHandler>>
 
-fun MutableMap<String, MutableSet<ConnectionHandler>>.subscribe(client: ConnectionHandler, topic: String) {
+internal val subscriptions: Subscriptions = ConcurrentHashMap()
+
+internal fun Subscriptions.subscribe(client: ConnectionHandler, topic: String) {
     synchronized(this) {
         putIfAbsent(topic, ConcurrentHashMap.newKeySet())
 
@@ -14,7 +16,7 @@ fun MutableMap<String, MutableSet<ConnectionHandler>>.subscribe(client: Connecti
     }
 }
 
-fun MutableMap<String, MutableSet<ConnectionHandler>>.unsubscribe(client: ConnectionHandler, topic: String) {
+internal fun Subscriptions.unsubscribe(client: ConnectionHandler, topic: String) {
     synchronized(this) {
         if (this[topic] != null) {
             this[topic]!!.remove(client)
@@ -26,7 +28,7 @@ fun MutableMap<String, MutableSet<ConnectionHandler>>.unsubscribe(client: Connec
 }
 
 fun main(args: Array<String>) {
-    println("INFO: Server started. Version 0.1")
+    println("INFO: Server started. Version 1.1.0")
 
     ServerSocket(1502).use { watchdog ->
         while (true) {
