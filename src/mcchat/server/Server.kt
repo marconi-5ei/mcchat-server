@@ -30,9 +30,9 @@ internal fun Subscriptions.unsubscribe(client: ConnectionHandler, topic: String)
 fun main(args: Array<String>) {
     println("INFO: Server started. Version 1.1.0")
 
-    ServerSocket(1502).use { watchdog ->
+    ServerSocket(1502).use { socket ->
         while (true) {
-            thread(isDaemon = true, block = ConnectionHandler(watchdog.accept())::run)
+            thread(isDaemon = true, block = ConnectionHandler(socket.accept())::run)
         }
     }
 }
